@@ -1,5 +1,6 @@
 const fs = require("fs");
 const http = require("http");
+const { json } = require("stream/consumers");
 const url = require("url");
 
 ////////////////////////////////////////////////////////////////
@@ -22,12 +23,20 @@ const url = require("url");
 
 ///////////////////////////////////////////////////////////////////
 // HTTP MODULE && URL MODULE
+const data = fs.readFileSync("./dev-data/data.json", "utf-8");
+const productData = JSON.parse(data);
+
 const server = http.createServer((req, res) => {
   const pathName = req.url;
   if (pathName === "/overview") {
     res.end("overview Page");
   } else if (pathName === "/" || pathName === "/services") {
     res.end("Services Page");
+  } else if (pathName === "/customAPI") {
+    res.writeHead(200, {
+      "Content-type": "application/json",
+    });
+    res.end(data);
   } else {
     res.writeHead(404, {
       "Content-type": "text/html",
