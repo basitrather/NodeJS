@@ -1,7 +1,7 @@
-const fs = require("fs");
-const http = require("http");
-const { json } = require("stream/consumers");
-const url = require("url");
+const fs = require('fs');
+const http = require('http');
+const { json } = require('stream/consumers');
+const url = require('url');
 
 ////////////////////////////////////////////////////////////////
 // FILES MODULE
@@ -22,29 +22,43 @@ const url = require("url");
 // console.log("I run first");
 
 ///////////////////////////////////////////////////////////////////
-// HTTP MODULE && URL MODULE
-const data = fs.readFileSync("./dev-data/data.json", "utf-8");
+// SERVER
+const data = fs.readFileSync('./dev-data/data.json', 'utf-8');
+const overviewPAGE = fs.readFileSync(`${__dirname}/templates/overview.html`, 'utf-8');
+const productPAGE = fs.readFileSync(`${__dirname}/templates/product.html`, 'utf-8');
+const cardTemplatePAGE = fs.readFileSync(`${__dirname}/templates/card_template.html`, 'utf-8');
 const productData = JSON.parse(data);
 
 const server = http.createServer((req, res) => {
   const pathName = req.url;
-  if (pathName === "/overview") {
-    res.end("overview Page");
-  } else if (pathName === "/" || pathName === "/services") {
-    res.end("Services Page");
-  } else if (pathName === "/customAPI") {
+
+  //OVERVIEW PAGE
+  if (pathName === '/' || pathName === '/overview') {
     res.writeHead(200, {
-      "Content-type": "application/json",
+      'Content-type': 'text/html',
+    });
+    res.end(overviewPAGE);
+
+    // PRODUCT PAGE
+  } else if (pathName === '/product') {
+    res.end('Product Page');
+
+    //API PAGE
+  } else if (pathName === '/customAPI') {
+    res.writeHead(200, {
+      'Content-type': 'application/json',
     });
     res.end(data);
+
+    // NOT FOUND PAGE
   } else {
     res.writeHead(404, {
-      "Content-type": "text/html",
-      "custom-header": "Please use the proper URL",
+      'Content-type': 'text/html',
+      'custom-header': 'Please use the proper URL',
     });
-    res.end("<h1>Hello, Page Not Found</h1>");
+    res.end('<h1>Hello, Page Not Found</h1>');
   }
 });
-server.listen(8000, "localhost", () => {
-  console.log("Server Started");
+server.listen(8000, 'localhost', () => {
+  console.log('Server Started');
 });
