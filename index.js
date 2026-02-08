@@ -28,23 +28,42 @@ const overviewPAGE = fs.readFileSync(`${__dirname}/templates/overview.html`, 'ut
 const productPAGE = fs.readFileSync(`${__dirname}/templates/product.html`, 'utf-8');
 const cardTemplatePAGE = fs.readFileSync(`${__dirname}/templates/card_template.html`, 'utf-8');
 const productData = JSON.parse(data);
+const replaceTemplate = (templatePage, product) => {
+  let current = templatePage.replace(/{%PRODUCTNAME%}/g, product.productName);
+  current = current.replace(/{%IMAGE%}/g, product.image);
+  current = current.replace(/{%FROM%}/g, product.from);
+  current = current.replace(/{%QAUNTITY%}/g, product.quantity);
+  current = current.replace(/{%NUTRIENTS%}/g, product.nutrients);
+  current = current.replace(/{%PRODUCT_DESCRIPTION%}/g, product.description);
+  current = current.replace(/{%PRICE%}/g, product.price);
+  current = current.replace(/{%ID%}/g, product.id);
+
+  if (!product.organic) current = current.replace(/{%NOT-ORGANIC%}/g, 'not-organic');
+  return current;
+};
 
 const server = http.createServer((req, res) => {
-  const pathName = req.url;
-
+  const { query, pathname } = url.parse(req.url, true);
   //OVERVIEW PAGE
-  if (pathName === '/' || pathName === '/overview') {
+  if (pathname === '/' || pathname === '/overview') {
     res.writeHead(200, {
       'Content-type': 'text/html',
     });
-    res.end(overviewPAGE);
+    const cardsHtml = productData.map((ele) => replaceTemplate(cardTemplatePAGE, ele)).join('');
+    const finalOutput = overviewPAGE.replace('{%PRODUCT_CARD%}', cardsHtml);
+    res.end(finalOutput);
 
     // PRODUCT PAGE
-  } else if (pathName === '/product') {
-    res.end('Product Page');
+  } else if (pathname === '/product') {
+    res.writeHead(200, {
+      'Content-type': 'text/html',
+    });
+    const product = productData[query.id];
+    const output = replaceTemplate(productPAGE, product);
+    res.end(output);
 
     //API PAGE
-  } else if (pathName === '/customAPI') {
+  } else if (pathname === '/customAPI') {
     res.writeHead(200, {
       'Content-type': 'application/json',
     });
