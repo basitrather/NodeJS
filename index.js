@@ -2,6 +2,7 @@ const fs = require('fs');
 const http = require('http');
 const { json } = require('stream/consumers');
 const url = require('url');
+const replaceTemplate = require('./modules/replaceTemplate'); //Custom import of own module
 
 ////////////////////////////////////////////////////////////////
 // FILES MODULE
@@ -28,19 +29,6 @@ const overviewPAGE = fs.readFileSync(`${__dirname}/templates/overview.html`, 'ut
 const productPAGE = fs.readFileSync(`${__dirname}/templates/product.html`, 'utf-8');
 const cardTemplatePAGE = fs.readFileSync(`${__dirname}/templates/card_template.html`, 'utf-8');
 const productData = JSON.parse(data);
-const replaceTemplate = (templatePage, product) => {
-  let current = templatePage.replace(/{%PRODUCTNAME%}/g, product.productName);
-  current = current.replace(/{%IMAGE%}/g, product.image);
-  current = current.replace(/{%FROM%}/g, product.from);
-  current = current.replace(/{%QAUNTITY%}/g, product.quantity);
-  current = current.replace(/{%NUTRIENTS%}/g, product.nutrients);
-  current = current.replace(/{%PRODUCT_DESCRIPTION%}/g, product.description);
-  current = current.replace(/{%PRICE%}/g, product.price);
-  current = current.replace(/{%ID%}/g, product.id);
-
-  if (!product.organic) current = current.replace(/{%NOT-ORGANIC%}/g, 'not-organic');
-  return current;
-};
 
 const server = http.createServer((req, res) => {
   const { query, pathname } = url.parse(req.url, true);
